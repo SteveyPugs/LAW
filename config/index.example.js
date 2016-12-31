@@ -6,7 +6,8 @@ var config = {
 		host: "host"
 	},
 	storage:{
-		encryption_password: "encryptionpw"
+		encryption_password: "encryptionpw",
+		evidence_folder: "path_to_folder"
 	}
 };
 

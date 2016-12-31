@@ -17,7 +17,6 @@ var storage = multer.memoryStorage();
 var upload = multer({
 	storage: storage
 });
-console.log()
 var internals = {};
 internals.encrypt = function(buffer){
 	var cipher = crypto.createCipher("aes-256-ctr", storage_config.encryption_password)
@@ -26,6 +25,9 @@ internals.encrypt = function(buffer){
 internals.decrypt = function(buffer){
 	var decipher = crypto.createDecipher("aes-256-ctr", storage_config.encryption_password)
 	return Buffer.concat([decipher.update(buffer) , decipher.final()]);
+};
+if(!fs.existsSync("storage/" + storage_config.evidence_folder)){
+	fs.mkdirSync("storage/" + storage_config.evidence_folder)
 }
 var us = require("us");
 var chance = new Chance();
@@ -60,12 +62,9 @@ app.engine(".html", exphbs({
 	defaultLayout: "main"
 }));
 app.set("view engine", ".html");
-
-
 app.use(express.static("bower_components"));
 app.use(express.static("bower_components/foundation-sites/dist"));
 app.use(express.static("app"));
-
 function auth(req, res, next){
 	if(lodash.isEmpty(req.cookies)){res.redirect("/")}
 	else{next()}
@@ -290,7 +289,7 @@ app.post("/evidence/new", upload.single("EvidenceFile"), auth, function(req, res
 		CaseID: req.body.CaseID
 	}).then(function(evidence){
 		var buffer = req.file.buffer.length > 0 ? req.file.buffer : new Buffer("");
-		fs.writeFile("storage/evidence/" + evidence.EvidenceGUID, internals.encrypt(buffer), function(err){
+		fs.writeFile("storage/" + storage_config.evidence_folder + "/" + evidence.EvidenceGUID, internals.encrypt(buffer), function(err){
 			if(err) console.log(err);
 			else res.send("success");
 		});
@@ -322,7 +321,7 @@ app.get("/evidence/:EvidenceGUID", auth, function(req, res, next){
 		},
 		raw: true
 	}).then(function(evidence){
-		fs.readFile("storage/evidence/" + req.params.EvidenceGUID, function(err, data){
+		fs.readFile("storage/" + storage_config.evidence_folder + "/" + req.params.EvidenceGUID, function(err, data){
 			if(err) console.log(err);
 			var decryptedFile = internals.decrypt(data);
 			res.setHeader("Content-disposition", "attachment; filename=" + evidence.EvidenceFileName);
