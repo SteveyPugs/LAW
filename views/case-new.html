@@ -1,0 +1,44 @@
+<div class="expanded row">
+	<div class="large-12 columns">
+		<h4>New Case</h4>
+	</div>
+</div>
+<form method="post" action="/case/new" data-abide novalidate>
+	<div class="expanded row">
+		<div class="large-4 columns">
+			<label>Client<input type="text" placeholder="Search for Client" id="Client" required></label>
+		</div>
+		<div class="large-4 columns">
+			<label>Start Date<input type="text" placeholder="Start Date" name="CaseStartDate" required></label>
+		</div>
+		<div class="large-4 columns">
+			<label>End Date<input type="text" placeholder="End Date" name="CaseEndDate"></label>
+			<p class="help-text" id="passwordHelpText">This would be a proposed end date. If unknown leave blank</p>
+		</div>
+	</div>
+	<div class="expanded row">
+		<div class="large-12 columns">
+			<button class="expanded button">Start</>
+		</div>
+	</div>
+	<input id="ClientID" type="hidden" name="ClientID" />
+</form>
+<script>
+$("#Client").easyAutocomplete({
+	url: "/client/list",
+	getValue: function(element) {
+		return element.ClientLastName + ", " + element.ClientFirstName;
+	},
+	template: {
+		type: "custom",
+		method: function(value, item){
+			return item.ClientLastName + ", " + item.ClientFirstName;
+		}
+	},
+	list: {
+		onSelectItemEvent: function() {
+			$("#ClientID").val($("#Client").getSelectedItemData().ClientID).trigger("change");
+		},
+	}
+});
+</script>

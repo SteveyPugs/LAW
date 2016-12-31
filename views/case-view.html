@@ -1,0 +1,242 @@
+<div class="row">
+	<div class="large-12 columns">
+		<h5>{{paddingNumber case_file.tblClient.ClientID}}-{{paddingNumber case_file.CaseID}}</h5><hr>
+	</div>
+</div>
+<div class="row">
+	<div class="large-3 columns">
+		<b>Client</b>
+		<br>
+		<small>{{case_file.tblClient.ClientLastName}}, {{case_file.tblClient.ClientFirstName}}<br>{{case_file.tblClient.ClientPrimaryAddress}}<br>{{case_file.tblClient.ClientPrimaryCity}}, {{case_file.tblClient.ClientPrimaryState}} {{case_file.tblClient.ClientPrimaryZip}}</small>
+	</div>
+	<div class="large-6 columns text-right">
+		<small>
+		<b>Start Date</b>
+		<br>
+		{{date case_file.CaseStartDate "MMMM Do YYYY"}}
+		<br>
+		<b>End Date</b>
+		<br>
+		{{date case_file.CaseEndDate "MMMM Do YYYY"}}
+		</small>
+	</div>
+</div>
+<br>
+<div class="row" ng-controller="CaseView">
+	<div class="large-12 columns">
+		<ul class="tabs" data-tabs id="CaseTabs">
+			<li class="tabs-title is-active"><a href="#Note">Notes</a></li>
+			<li class="tabs-title"><a href="#Evidence">Evidence</a></li>
+			<li class="tabs-title"><a href="#Call">Calls</a></li>
+		</ul>
+		<div class="tabs-content" data-tabs-content="CaseTabs">
+			<div class="tabs-panel is-active" id="Note">
+				<div class="row">
+					<div class="large-3 columns">
+						<form name="NewNote" id="NewNote" data-abide novalidate>
+							<input type="hidden" name="CaseID" id="CaseID" value="{{case_file.CaseID}}">
+							<label>
+								<span class="form-error">Note Text is Required</span>
+								<textarea rows="8" required name="NoteText" placeholder="Add New Note Here"></textarea>
+							</label>
+							<button class="small expanded button">Send</button>
+						</form>
+					</div>
+					<div class="large-9 columns">
+						<table id="CaseNotes" class="display compact" cellspacing="0" width="100%">
+							<thead>
+								<tr>
+									<th width="50%">Note</th>
+									<th width="15%">By</th>
+									<th width="15%">Date</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="tabs-panel" id="Evidence">
+				<form name="NewEvidence" id="NewEvidence" data-abide novalidate enctype="multipart/form-data">
+					<div class="row">
+						<div class="large-3 columns">
+							<input type="hidden" name="CaseID" id="CaseID" value="{{case_file.CaseID}}">
+							<label>Evidence Label<input type="text" required ng-model="EvidenceName"></label>
+							<input type="file" ngf-select ng-model="EvidenceFile" name="file" required>
+							<button class="small expanded button">Upload</button>
+						</div>
+						<div class="large-9 columns">
+							<table id="CaseEvidence" class="display compact" cellspacing="0" width="100%">
+								<thead>
+									<tr>
+										<th width="75%">File Name</th>
+										<th width="25%">Date</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="tabs-panel" id="Call">
+				<div class="row">
+					<div class="large-3 columns">
+						<form name="NewCall" id="NewCall" data-abide novalidate>
+							<input type="hidden" name="CaseID" id="CaseID" value="{{case_file.CaseID}}">
+							<label>
+								<span class="form-error">Note is Required</span>
+								<textarea rows="2" required name="CallNote" placeholder="Add New Call Note Here"></textarea>
+							</label>
+							<label>
+								<span class="form-error">Direction is Required</span>
+								<input type="radio" name="CallDirection" value="false" id="FromClient" required><label>From</label>
+								<input type="radio" name="CallDirection" value="true" id="ToClient" required><label>To</label>
+							</label>
+							<button class="small expanded button">Send</button>
+						</form>
+					</div>
+					<div class="large-9 columns">
+						<table id="CaseCalls" class="display compact" cellspacing="0" width="100%">
+							<thead>
+								<tr>
+									<th width="25%">Note</th>
+									<th width="25%">By</th>
+									<th width="25%">Direction</th>
+									<th width="25%">Date</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<style>
+th { font-size: 14px; }
+td, textarea { font-size: 13px; }
+</style>
+<script>
+app.controller("CaseView", function($scope, $http, Upload){
+	$("#CaseTabs").on("change.zf.tabs", function(event){
+		if($("#Note:visible").length){
+			caseNotes.ajax.reload();
+		}
+		if($("#Evidence:visible").length){
+			console.log("Evidence");
+		}
+		if($("#Call:visible").length){
+			caseCalls.ajax.reload();
+		}
+	});
+	$("#NewNote").on("formvalid.zf.abide", function(ev,frm){
+		$http.post("/note/new", $(frm).serializeObject()).then(function(response){
+			$("#NewNote").foundation("resetForm");
+			caseNotes.ajax.reload();
+		},function(err){
+			console.log(err);
+		});
+	});
+	$("#NewCall").on("formvalid.zf.abide", function(ev,frm){
+		$http.post("/call/new", $(frm).serializeObject()).then(function(response){
+			$("#NewCall").foundation("resetForm");
+			caseCalls.ajax.reload();
+		},function(err){
+			console.log(err);
+		});
+	});
+	$("#NewEvidence").on("formvalid.zf.abide", function(ev,frm){
+		Upload.upload({
+			url: "/evidence/new",
+			method: "POST",
+			data:{
+				EvidenceName: $scope.EvidenceName,
+				EvidenceFile: $scope.EvidenceFile,
+				CaseID: $(frm).serializeObject().CaseID
+			}
+		}).then(function(resp){
+			console.log(resp.data);
+		}, function(err){
+			console.log(err)
+		});
+
+		//		caseCalls.ajax.reload();
+		//		$("#NewCall").foundation("resetForm");
+	});
+	var caseNotes = $("#CaseNotes").DataTable({
+		bFilter: false,
+		bLengthChange: false,
+		pagingType: "full_numbers",
+		pageLength: 5,
+		order: [[2, "desc"]],
+		ajax:{
+			url: "/note/list/{{case_file.CaseID}}",
+			dataSrc: function(json){
+				return json;
+			}
+		},
+		columns: [{
+			data: "NoteText",
+		},{
+			data: function(data){
+				return data.tblUser.UserFirstName + " " + data.tblUser.UserLastName;
+			}
+		},{
+			data: "createdAt"
+		}]
+	});
+	var caseCalls = $("#CaseCalls").DataTable({
+		bFilter: false,
+		bLengthChange: false,
+		pagingType: "full_numbers",
+		pageLength: 5,
+		order: [[3, "desc"]],
+		ajax:{
+			url: "/call/list/{{case_file.CaseID}}",
+			dataSrc: function(json){
+				return json;
+			}
+		},
+		columns: [{
+			data: "CallNote",
+		},{
+			data: function(data){
+				return data.tblUser.UserFirstName + " " + data.tblUser.UserLastName;
+			}
+		},{
+			data: function(data){
+				if(data.CallDirection){
+					return '<i class="fa fa-arrow-left"></i> Client';
+				}
+				else{
+					return '<i class="fa fa-arrow-right"></i> Law';
+				}
+			}
+		},{
+			data: "createdAt"
+		}]
+	});
+	var caseEvidence = $("#CaseEvidence").DataTable({
+		bFilter: false,
+		bLengthChange: false,
+		pagingType: "full_numbers",
+		pageLength: 5,
+		order: [[1, "desc"]],
+		ajax:{
+			url: "/evidence/list/{{case_file.CaseID}}",
+			dataSrc: function(json){
+				return json;
+			}
+		},
+		columns: [{
+			data: function(data){
+				return '<a target="_blank" href="/evidence/' + data.EvidenceGUID + '">' + data.EvidenceName + '</a>';
+			},
+		},{
+			data: "createdAt"
+		}]
+
+
+//# EvidenceID, EvidenceGUID, , EvidenceFileName, EvidenceFileType, createdAt, updatedAt, deletedAt, CaseID
+	});
+});
+</script>

@@ -1,0 +1,63 @@
+<div class="expanded row">
+	<div class="large-12 columns">
+		<h4>New Client</h4>
+	</div>
+</div>
+<form method="post" action="/client/new" data-abide novalidate>
+	<div class="expanded row">
+		<div class="large-4 columns">
+			<label>First Name<input type="text" name="ClientFirstName" required></label>
+		</div>
+		<div class="large-4 columns">
+			<label>Last Name<input type="text" name="ClientLastName" required></label>
+		</div>
+		<div class="large-4 columns">
+			<label>Phone Number<input type="text" name="ClientPhone" required></label>
+		</div>
+	</div>
+	<div class="expanded row">
+		<div class="large-4 columns">
+			<label>Emergency Contact Name<input type="text" name="ClientEmergencyName" required></label>
+		</div>
+		<div class="large-4 columns">
+			<label>Emergency Contact Address<input type="text" name="ClientEmergencyPhone" required></label>
+		</div>
+		<div class="large-4 columns">
+			<label>Emergency Contact Number<input type="text" name="ClientEmergencyAddress" required></label>
+		</div>
+	</div>
+	<hr>
+	<div class="expanded row">
+		<div class="large-3 columns">
+			<label>Primary Address<input type="text" name="ClientPrimaryAddress" required></label>
+		</div>
+		<div class="large-3 columns">
+			<label>Primary City<input type="text" name="ClientPrimaryCity" required></label>
+		</div>
+		<div class="large-3 columns">
+			<label>Primary State<select name="ClientPrimaryState" required><option></option>{{#each states}}<option value="{{@key}}">{{name}}</option>{{/each}}</select></label>
+		</div>
+		<div class="large-3 columns">
+			<label>Primary Zip Code<input type="text" name="ClientPrimaryZip" required></label>
+		</div>
+	</div>
+	<div class="expanded row">
+		<div class="large-3 columns">
+			<label>Secondary Address<input type="text" name="ClientSecondaryAddress"></label>
+		</div>
+		<div class="large-3 columns">
+			<label>Secondary City<input type="text" name="ClientSecondaryCity"></label>
+		</div>
+		<div class="large-3 columns">
+			<label>Secondary State<select name="ClientSecondaryState"><option></option>{{#each states}}<option value="{{@key}}">{{name}}</option>{{/each}}</select></label>
+		</div>
+		<div class="large-3 columns">
+			<label>Secondary Zip Code<input type="text" name="ClientSecondaryZip"></label>
+		</div>
+	</div>
+	<div class="expanded row">
+		<div class="large-12 columns text-right">
+			<button class="expanded button" href="/client/view/3">Create</button>
+		</div>
+	</div>
+</form>

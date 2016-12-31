@@ -14,5 +14,14 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "font-awesome": "^4.7.0",
+    "foundation-sites": "^6.2.4",
+    "datatables.net": "^1.10.13",
+    "datatables.net-zf": "^1.10.13",
+    "EasyAutocomplete": "^1.3.5",
+    "angular": "^1.5.8",
+    "ng-file-upload": "^12.2.13"
+  }
 }
